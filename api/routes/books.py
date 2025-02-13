@@ -69,4 +69,5 @@ async def get_book(book_id: int):
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND, content={"detail": "Book not found"}
         )
+
     return book
