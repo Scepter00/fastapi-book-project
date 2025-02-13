@@ -70,5 +70,4 @@ async def get_book(book_id: int):
             content={"detail": "Book not found"}
         )
 
-
     return db.books[book_id].model_dump()
