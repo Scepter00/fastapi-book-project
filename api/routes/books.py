@@ -23,7 +23,6 @@ db.books = {
         publication_year=1954,
         genre=Genre.FANTASY,
     ),
-
     3: Book(
         id=3,
         title="The Return of the King",
