@@ -71,4 +71,3 @@ async def get_book(book_id: int):
         )
 
     return book
-
