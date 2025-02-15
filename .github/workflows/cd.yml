@@ -1,23 +1,37 @@
-name: CD
+name: Deploy
 on:
   push:
     branches:
       - main
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ubuntu
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /home/ubuntu/fastapi-app
-            git pull origin main
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Deploy to server
+        env:
+          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          HOST: ${{ secrets.SERVER_IP }}
+          USER: ubuntu
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+            ssh -o StrictHostKeyChecking=no -i private_key $USER@$HOST << 'EOF'
+            cd fastapi-book-project
+            echo "Current directory: $(pwd)"
+            echo "Git remote configuration"
+            git remote -v fd
+            echo "Pull from main branch"
+            git fetch origin
+            echo "Pull from main"
+            git pull origin main || { echo "git pull failed"; exit 1; }
+            echo "Install requirements"
             source venv/bin/activate
             pip install -r requirements.txt
-            sudo systemctl restart fastapi
+            echo "Return Service"
+            sudo systemctl daemon-reload
+            echo "Restart FastAppi service"
+            sudo systemctl restart fastapp.service
+            echo "Restart Nginx"
             sudo systemctl restart nginx
+          EOF
